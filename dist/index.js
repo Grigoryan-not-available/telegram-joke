@@ -6198,31 +6198,30 @@ async function getRandomJoke() {
       setup: response.data.setup,
       punchline: response.data.punchline
     }
-
-    core.debug(JSON.stringify(jokeData))
-    return response.data
+    core.setOutput('joke', jokeData)
+    return jokeData
   } catch (error) {
-    core.setFailed(`Error fetching joke:\n${error.message}`)
+    core.setFailed(`Error fetching joke: ${error.message}`)
   }
 }
 
 async function sendJokeToTelegram(joke, botToken, chatId) {
   try {
     const escapeChars = str => {
-      return str.replace(/([.*+?^=!:${}()|[]\/\\])/g, '\\$1')
+      return str.replace(/([-.,'`*+?^=!:${}()/\\])/g, '\\$1')
     }
 
-    const customJoke = `${escapeChars(joke.setup)}\n||${escapeChars(
-      joke.punchline
-    )}||`
-    const encodedJoke = encodeURIComponent(customJoke)
-    console.log(encodedJoke)
-    const url = `https://api.telegram.org/${botToken}/sendMessage?chat_id=${chatId}&parse_mode=MarkdownV2&text=${encodedJoke}`
+    const encodedJokeSetup = encodeURIComponent(escapeChars(joke.setup))
+    const encodedJokePunchline = encodeURIComponent(escapeChars(joke.punchline))
+
+    const customJoke = `${encodedJokeSetup}\n||${encodedJokePunchline}||`
+    console.log(customJoke)
+    const url = `https://api.telegram.org/${botToken}/sendMessage?chat_id=${chatId}&parse_mode=MarkdownV2&text=${customJoke}`
 
     await axios.get(url)
     core.info('Joke sent to Telegram successfully.')
   } catch (error) {
-    core.setFailed(`Error sending joke to Telegram:\n${error.message}`)
+    core.setFailed(`Error sending joke to Telegram: ${error.message}`)
   }
 }
 
@@ -6235,8 +6234,6 @@ async function run() {
     const chatID = core.getInput('chat_id', { required: true })
     const token = core.getInput('token', { required: true })
     const joke = await getRandomJoke()
-
-    core.setOutput('joke', joke)
 
     await sendJokeToTelegram(joke, token, chatID)
   } catch (error) {
