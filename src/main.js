@@ -15,7 +15,7 @@ async function getRandomJoke() {
     core.debug(JSON.stringify(jokeData))
     return response.data
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(`Error fetching joke:\n${error.message}`)
   }
 }
 
@@ -23,12 +23,13 @@ async function sendJokeToTelegram(joke, botToken, chatId) {
   try {
     const customJoke = `${joke.setup}\n||${joke.punchline}||`
     const encodedJoke = encodeURIComponent(customJoke)
+    console.log(encodedJoke)
     const url = `https://api.telegram.org/${botToken}/sendMessage?chat_id=${chatId}&parse_mode=MarkdownV2&text=${encodedJoke}`
 
     await axios.get(url)
     core.info('Joke sent to Telegram successfully.')
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(`Error sending joke to Telegram:\n${error.message}`)
   }
 }
 
@@ -47,7 +48,7 @@ async function run() {
     await sendJokeToTelegram(joke, token, chatID)
   } catch (error) {
     // Fail the workflow run if an error occurs
-    core.setFailed(error.message)
+    core.setFailed(`Workflow failed: ${error.message}`)
   }
 }
 
