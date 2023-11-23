@@ -21,7 +21,13 @@ async function getRandomJoke() {
 
 async function sendJokeToTelegram(joke, botToken, chatId) {
   try {
-    const customJoke = `${joke.setup}\n||${joke.punchline}||`
+    const escapeChars = str => {
+      return str.replace(/([.*+?^=!:${}()|[]\/\\])/g, '\\$1')
+    }
+
+    const customJoke = `${escapeChars(joke.setup)}\n||${escapeChars(
+      joke.punchline
+    )}||`
     const encodedJoke = encodeURIComponent(customJoke)
     console.log(encodedJoke)
     const url = `https://api.telegram.org/${botToken}/sendMessage?chat_id=${chatId}&parse_mode=MarkdownV2&text=${encodedJoke}`
