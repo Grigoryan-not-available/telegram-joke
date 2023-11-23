@@ -6193,7 +6193,13 @@ async function getRandomJoke() {
     const response = await axios.get(
       'https://official-joke-api.appspot.com/random_joke'
     )
-    core.debug(response)
+    // Extract only the necessary information from the response
+    const jokeData = {
+      setup: response.data.setup,
+      punchline: response.data.punchline
+    }
+
+    core.debug(JSON.stringify(jokeData))
     return response.data
   } catch (error) {
     core.setFailed(error.message)
