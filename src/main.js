@@ -9,26 +9,20 @@ async function getRandomJoke() {
     core.debug(response)
     return response.data
   } catch (error) {
-    console.error('Error fetching joke:', error.message)
-    throw error
+    core.setFailed(error.message)
   }
 }
 
 async function sendJokeToTelegram(joke, botToken, chatId) {
   try {
-    console.log(JSON.stringify(joke))
-    const customJoke = `
-      CUSTOM: ${joke.setup}
-      ${joke.delivery}
-    `
+    const customJoke = `${joke.setup}\n||${joke.punchline}||`
     const encodedJoke = encodeURIComponent(customJoke)
     const url = `https://api.telegram.org/${botToken}/sendMessage?chat_id=${chatId}&parse_mode=MarkdownV2&text=${encodedJoke}`
 
     await axios.get(url)
-    console.log('Joke sent to Telegram successfully.')
+    core.info('Joke sent to Telegram successfully.')
   } catch (error) {
-    console.error('Error sending joke to Telegram:', error.message)
-    throw error
+    core.setFailed(error.message)
   }
 }
 
