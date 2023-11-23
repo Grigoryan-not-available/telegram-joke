@@ -1,18 +1,18 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Telegram joke'
+description: 'Send random joke to telegram'
+author: 'Grigoryan-not-available'
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  chat_id:
+    description: "Telegram bot chat id"
     required: true
-    default: '1000'
+  token:
+    description: "Telegram bot token"
+    required: true
 
-# Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  joke:
+    description: 'Random joke'
 
 runs:
   using: node20

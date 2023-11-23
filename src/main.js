@@ -1,5 +1,49 @@
 const core = require('@actions/core')
-const { wait } = require('./wait')
+const axios = require('axios');
+
+async function getRandomJoke() {
+  try {
+    const response = await axios.get('https://official-joke-api.appspot.com/random_joke');
+    core.debug(response)
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching joke:', error.message);
+    throw error;
+  }
+}
+
+async function sendJokeToTelegram(joke, botToken, chatId) {
+  try {
+    console.log(JSON.stringify(joke))
+    const customJoke = `
+      CUSTOM: ${joke.setup}
+      ${joke.delivery}
+    `;
+    const encodedJoke = encodeURIComponent(customJoke);
+    const url = `https://api.telegram.org/${botToken}/sendMessage?chat_id=${chatId}&parse_mode=MarkdownV2&text=${encodedJoke}`;
+    
+    await axios.get(url);
+    console.log('Joke sent to Telegram successfully.');
+  } catch (error) {
+    console.error('Error sending joke to Telegram:', error.message);
+    throw error;
+  }
+}
+
+async function run() {
+  try {
+    const chatID = core.getInput('chat_id', { required: true })
+    const token = core.getInput('token', { required: true })
+    const joke = await getRandomJoke();
+
+    core.setOutput('joke', joke)
+
+    await sendJokeToTelegram(joke, token, chatID);
+  } catch (error) {
+    console.error('Workflow failed:', error.message);
+    process.exit(1);
+  }
+}
 
 /**
  * The main function for the action.
@@ -7,18 +51,13 @@ const { wait } = require('./wait')
  */
 async function run() {
   try {
-    const ms = core.getInput('milliseconds', { required: true })
+    const chatID = core.getInput('chat_id', { required: true })
+    const token = core.getInput('token', { required: true })
+    const joke = await getRandomJoke();
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    core.setOutput('joke', joke)
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    await sendJokeToTelegram(joke, token, chatID);
   } catch (error) {
     // Fail the workflow run if an error occurs
     core.setFailed(error.message)
