@@ -28,7 +28,6 @@ async function sendJokeToTelegram(joke, botToken, chatId) {
     const encodedJokePunchline = encodeURIComponent(escapeChars(joke.punchline))
 
     const customJoke = `${encodedJokeSetup}%0A||${encodedJokePunchline}||`
-    console.log(customJoke)
     const url = `https://api.telegram.org/${botToken}/sendMessage?chat_id=${chatId}&parse_mode=MarkdownV2&text=${customJoke}`
 
     await axios.get(url)
