@@ -22,7 +22,7 @@ async function getRandomJoke() {
 async function sendJokeToTelegram(joke, botToken, chatId) {
   try {
     const escapeChars = str => {
-      return str.replace(/([.,-*+?^=!:${}()|\/\\])/g, '\\\\$1')
+      return str.replace(/([.,-*+?^=!:${}()|\/\\])/g, '\\$1')
     }
 
     const customJoke = `${escapeChars(joke.setup)}\n||${escapeChars(
